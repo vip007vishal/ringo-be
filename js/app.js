@@ -398,11 +398,16 @@
             // 1. Featured Ringtone Hero Card
             const featuredHeroContainer = document.getElementById('home-featured-hero-container');
             if (featuredHeroContainer) {
-                const featuredSound = allSounds.find(s => s.isRingoOriginal) || allSounds[0];
+                const currentPlaying = (typeof RingoAudioEngine !== 'undefined') ? RingoAudioEngine.getState().currentSound : null;
+                const featuredSound = currentPlaying || allSounds.find(s => s.isRingoOriginal) || allSounds[0];
                 if (featuredSound) {
                     featuredHeroContainer.innerHTML = '';
                     const heroCard = RingoComponents.createFeaturedHeroCard(featuredSound);
                     featuredHeroContainer.appendChild(heroCard);
+                    const heroLabel = document.getElementById('featured-hero-label');
+                    if (heroLabel) {
+                        heroLabel.textContent = currentPlaying ? 'NOW PLAYING' : this.t('featured_track');
+                    }
                 } else {
                     featuredHeroContainer.innerHTML = '<div class="empty-state">No featured track available.</div>';
                 }
@@ -1188,6 +1193,35 @@
                     heroDlBtn.classList.toggle('downloaded', isDl);
                     heroDlBtn.innerHTML = RingoComponents.getIcon(isDl ? 'download_done' : 'download');
                 }
+            }
+        },
+
+        /**
+         * Update Featured Hero Track dynamically to display the currently playing track
+         */
+        updateFeaturedHeroTrack(sound) {
+            const featuredHeroContainer = document.getElementById('home-featured-hero-container');
+            const heroLabel = document.getElementById('featured-hero-label');
+            if (!featuredHeroContainer) return;
+
+            const targetSound = sound || ((typeof RingoAudioEngine !== 'undefined') ? RingoAudioEngine.getState().currentSound : null) || allSounds.find(s => s.isRingoOriginal) || allSounds[0];
+            if (!targetSound) return;
+
+            // If existing hero card is already this sound, just make sure label and card classes are synced
+            const existingCard = featuredHeroContainer.querySelector('.featured-hero-card');
+            if (existingCard && existingCard.dataset.id === targetSound.id) {
+                if (heroLabel) {
+                    heroLabel.textContent = sound ? 'NOW PLAYING' : this.t('featured_track');
+                }
+                return;
+            }
+
+            featuredHeroContainer.innerHTML = '';
+            const heroCard = RingoComponents.createFeaturedHeroCard(targetSound);
+            featuredHeroContainer.appendChild(heroCard);
+
+            if (heroLabel) {
+                heroLabel.textContent = sound ? 'NOW PLAYING' : this.t('featured_track');
             }
         },
 

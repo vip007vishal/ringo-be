@@ -265,6 +265,11 @@ var RingoPlayerUI = (() => {
 
     showMiniPlayer();
 
+    // Dynamically update Featured Track Hero Card to display the currently playing track
+    if (sound && window.RingoApp && RingoApp.updateFeaturedHeroTrack) {
+      RingoApp.updateFeaturedHeroTrack(sound);
+    }
+
     // 1. Update Mini Player DOM
     const miniTitle = document.getElementById('mini-player-title');
     const miniSubtitle = document.getElementById('mini-player-subtitle');
