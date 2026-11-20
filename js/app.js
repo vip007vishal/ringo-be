@@ -1138,7 +1138,16 @@
          * Refresh handlers called by router
          */
         refreshHome() {
-            this.renderHomeScreen();
+            const catalogList = document.getElementById('home-catalog-list');
+            if (!catalogList || catalogList.children.length === 0) {
+                this.renderHomeScreen();
+            } else {
+                const cur = (typeof RingoAudioEngine !== 'undefined') ? RingoAudioEngine.getState().currentSound : null;
+                if (cur) {
+                    this.updateFeaturedHeroTrack(cur);
+                }
+                this.updateAllSoundCardButtons();
+            }
         },
 
         refreshExplore(params) {

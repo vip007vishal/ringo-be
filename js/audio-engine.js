@@ -201,8 +201,50 @@ const RingoAudioEngine = (() => {
     setPlaying(false);
   }
 
+  function updateMediaSession(sound, isPlayingState) {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+
+    if (sound) {
+      try {
+        const coverArt = sound.coverUrl || 'assets/images/ic_launcher.png';
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: sound.title || 'RINGO Track',
+          artist: sound.creator || 'RINGO',
+          album: sound.album || 'RINGO Music',
+          artwork: [
+            { src: coverArt, sizes: '96x96', type: 'image/jpeg' },
+            { src: coverArt, sizes: '256x256', type: 'image/jpeg' },
+            { src: coverArt, sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
+      } catch (e) {
+        console.warn('[MediaSession] metadata update failed:', e);
+      }
+    }
+
+    try {
+      navigator.mediaSession.playbackState = isPlayingState ? 'playing' : 'paused';
+    } catch (e) {}
+
+    const actionHandlers = [
+      ['play', () => { if (currentSound) togglePlayPause(currentSound); }],
+      ['pause', () => { pause(); }],
+      ['stop', () => { stop(); }],
+      ['previoustrack', () => { if (window.RingoPlayerUI) RingoPlayerUI.playPreviousQueueTrack(); }],
+      ['nexttrack', () => { if (window.RingoPlayerUI) RingoPlayerUI.playNextQueueTrack(); }],
+      ['seekto', (details) => { if (details && details.seekTime !== undefined) seekTo(details.seekTime * 1000); }]
+    ];
+
+    actionHandlers.forEach(([action, handler]) => {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch (e) {}
+    });
+  }
+
   function setPlaying(playing) {
     isPlaying = playing;
+    updateMediaSession(currentSound, playing);
     notifyState();
   }
 
@@ -602,3 +644,24 @@ const RingoAudioEngine = (() => {
     getAudioContext
   };
 })();
+
+// Background Tab & OS Continuity: Prevent audio context from sleeping when switching tabs
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    const ctx = RingoAudioEngine.getAudioContext();
+    const state = RingoAudioEngine.getState();
+    if (ctx && ctx.state === 'suspended' && state.isPlaying) {
+      ctx.resume().catch(() => {});
+    }
+  });
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('focus', () => {
+    const ctx = RingoAudioEngine.getAudioContext();
+    const state = RingoAudioEngine.getState();
+    if (ctx && ctx.state === 'suspended' && state.isPlaying) {
+      ctx.resume().catch(() => {});
+    }
+  });
+}
