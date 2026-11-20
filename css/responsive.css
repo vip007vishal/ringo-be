@@ -1,0 +1,166 @@
+/* ==========================================================================
+   RINGO — Responsive Styles (Mobile Screen Adaptations)
+   Target Dimensions: 320x640, 360x800, 375x812, 390x844, 412x915, 432x960
+   ========================================================================== */
+
+/* Compact Mobile Screens (< 360px width, e.g. 320x640) */
+@media (max-width: 359px) {
+  :root {
+    --nav-bar-height: 58px;
+    --mini-player-height: 56px;
+  }
+
+  .section-header {
+    padding: 16px 12px 6px 12px;
+  }
+
+  .sound-card {
+    margin: 5px 12px;
+    padding: 10px;
+  }
+
+  .sound-art-box {
+    width: 46px;
+    height: 46px;
+  }
+
+  .sound-art-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sound-title {
+    font-size: 13.5px;
+  }
+
+  .sound-subtitle-row {
+    font-size: 11px;
+  }
+
+  .sound-card-actions {
+    gap: 0;
+  }
+
+  .sound-action-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .sound-action-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .featured-hero-wrapper {
+    padding: 6px 12px;
+  }
+
+  .featured-hero-card {
+    padding: 14px;
+  }
+
+  .featured-hero-art {
+    width: 60px;
+    height: 60px;
+  }
+
+  .featured-hero-title {
+    font-size: 18px;
+  }
+
+  .featured-play-btn, .featured-download-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .full-player-disc {
+    width: 140px;
+    height: 140px;
+  }
+
+  .control-btn-play {
+    width: 56px;
+    height: 56px;
+  }
+
+  .control-btn-play svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .pill-nav-bar {
+    padding: 2px 4px;
+  }
+
+  .pill-nav-indicator {
+    padding: 8px 12px;
+  }
+
+  .pill-nav-icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  .effects-sliders-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Medium Mobile Screens (360px - 412px, e.g. 360x800, 375x812, 390x844) */
+@media (min-width: 360px) and (max-width: 412px) {
+  .sound-card {
+    margin: 6px 14px;
+  }
+
+  .featured-hero-wrapper {
+    padding: 8px 14px;
+  }
+}
+
+/* Short height screens (< 660px height) */
+@media (max-height: 660px) {
+  .full-player-disc {
+    width: 120px;
+    height: 120px;
+    margin: 6px 0 12px 0;
+  }
+
+  .full-player-track-title {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .full-player-controls-row {
+    margin-bottom: 14px;
+  }
+
+  .full-player-actions-col {
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .full-player-set-btn, .full-player-download-btn {
+    height: 44px;
+  }
+}
+
+/* Safe Area Insets for notched Android phones & gesture navigation bars */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pill-nav-container {
+    bottom: calc(var(--nav-bar-bottom-margin) + env(safe-area-inset-bottom, 0px));
+  }
+  .mini-player-container {
+    bottom: calc(var(--nav-bar-height) + var(--nav-bar-bottom-margin) + env(safe-area-inset-bottom, 0px) + 8px);
+  }
+}
+
+/* Prevent text selection and unwanted pinch-to-zoom on outer UI */
+body {
+  touch-action: manipulation;
+}
+
+/* Prevent horizontal overflow strictly */
+html, body, #app, #main-content {
+  max-width: 100vw;
+  overflow-x: hidden;
+}

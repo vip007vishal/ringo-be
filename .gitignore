@@ -1,0 +1,9 @@
+# Reference extraction folders
+apk_extracted/
+extracted_ref/
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

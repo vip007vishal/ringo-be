@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#09080D">
+    <meta name="description" content="RINGO - 100% Free Mobile Audio, Ringtones, and Studio Effects">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>RINGO</title>
+
+    <!-- App Favicon / Icons -->
+    <link rel="icon" type="image/png" href="assets/images/ic_launcher.png">
+    <link rel="apple-touch-icon" href="assets/images/ic_launcher_round.png">
+
+    <!-- CSS Architecture (Componentized, Mobile-First) -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/player.css">
+    <link rel="stylesheet" href="css/studio.css">
+    <link rel="stylesheet" href="css/library.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <!-- Main Mobile Application Scaffold (Max-width 720px, Obsidian Background) -->
+    <div id="app">
+
+        <!-- Offline Status Pill / Banner -->
+        <aside id="offline-status-banner" class="offline-status-banner" style="display: none;" role="status" aria-live="polite">
+            <div class="offline-banner-left">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46C10.21 6.23 11.08 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C23.16 18.16 24 16.68 24 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.91 1 11.26 1 14c0 3.31 2.69 6 6 6h11.73l2 2 1.27-1.27L4.27 4 3 5.27zM7.73 10l8 8H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h.73z"/>
+                </svg>
+                <span>Offline Mode · Playing from Saved Device Cache</span>
+            </div>
+            <button class="offline-banner-btn" onclick="RingoRouter.navigate('library', { tab: 'downloads' })">Saved Cache</button>
+        </aside>
+
+        <!-- Sponsored AdMob Banner Slot (RingoAdBanner) -->
+        <section class="ringo-ad-banner ad-banner-slot" aria-label="Sponsored Content">
+            <span class="ad-badge" aria-label="Advertisement">AD</span>
+            <span class="ad-sponsor-text ad-caption">Sponsored · Keep RINGO 100% Free Forever</span>
+        </section>
+
+        <!-- Scrollable Main Content Viewport Area -->
+        <main id="main-content">
+
+            <!-- ========================================== -->
+            <!-- 1. HOME SCREEN                             -->
+            <!-- ========================================== -->
+            <section id="screen-home" class="app-screen active" aria-label="Home Screen">
+                <!-- App Header (Matching HomeScreen.kt lines 160-265) -->
+                <header class="home-header">
+                    <div class="home-brand">
+                        <div class="home-logo-circle">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 18h2V6H7v12zm4 4h2V2h-2v20zm-8-8h2v-4H3v4zm12 4h2V6h-2v12zm4-8v4h2v-4h-2z"/>
+                            </svg>
+                        </div>
+                        <div class="home-brand-text">
+                            <div class="brand-title-row">
+                                <h1 class="brand-name">RINGO</h1>
+                                <span class="free-badge">100% FREE</span>
+                            </div>
+                            <p class="brand-tagline" data-i18n="tagline">Your Sound. Your Identity.</p>
+                        </div>
+                    </div>
+                    <div class="home-header-actions">
+                        <button class="header-icon-btn" id="btn-home-equalizer" title="Equalizer" aria-label="Open Equalizer" onclick="RingoEqualizer.openModal()">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/>
+                            </svg>
+                        </button>
+                        <div class="header-user-avatar" id="btn-home-profile" title="Profile" onclick="RingoRouter.navigate('profile')">
+                            <span>R</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Quick Search Bar -->
+                <section class="home-search-section">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="home-search-input" placeholder="Search songs, artists, or categories..." data-i18n-placeholder="search_placeholder" aria-label="Search audio catalog">
+                    </div>
+                </section>
+
+                <!-- Featured Track Hero Section -->
+                <section class="featured-hero-wrapper">
+                    <span class="featured-hero-label" data-i18n="featured_track">FEATURED TRACK</span>
+                    <div id="home-featured-hero-container">
+                        <div class="loading-spinner"></div>
+                        <canvas id="featured-waveform-canvas" width="340" height="36" style="display:none;"></canvas>
+                        <button id="featured-play-btn" style="display:none;"></button>
+                    </div>
+                </section>
+
+                <!-- Dynamic Category Chips Row -->
+                <section class="home-category-chips-section">
+                    <div class="category-chips-row" id="home-category-chips">
+                        <!-- Populated dynamically by app.js -->
+                    </div>
+                </section>
+
+                <!-- Songs & Ringtones Catalog Section -->
+                <section class="home-catalog-section">
+                    <div class="section-header">
+                        <div class="section-header-info">
+                            <h2 class="section-header-title" data-i18n="songs_and_ringtones">Songs &amp; Ringtones</h2>
+                            <div class="section-header-subtitle">Catalog tracks ready to stream or set</div>
+                        </div>
+                        <button class="section-see-all see-all-btn" onclick="RingoRouter.navigate('explore')" data-i18n="see_all">See All</button>
+                    </div>
+                    <div class="catalog-cards-list" id="home-catalog-list">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </section>
+
+                <!-- Featured Artists Carousel Section -->
+                <section class="home-artists-section">
+                    <div class="section-header">
+                        <div class="section-header-info">
+                            <h2 class="section-header-title" data-i18n="featured_artists">Featured Artists</h2>
+                            <div class="section-header-subtitle">Original creators &amp; sound designers</div>
+                        </div>
+                    </div>
+                    <div class="creator-cards-row artists-carousel-row" id="home-featured-artists-list">
+                        <!-- Populated dynamically by app.js -->
+                    </div>
+                </section>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 2. EXPLORE SCREEN                          -->
+            <!-- ========================================== -->
+            <section id="screen-explore" class="app-screen" aria-label="Explore Screen">
+                <header class="explore-header">
+                    <h1 class="explore-title" data-i18n="discover_explore">Discover &amp; Explore</h1>
+                    <p class="explore-subtitle" data-i18n="explore_subtitle">Find high-fidelity ringtones, notifications, and audio effects</p>
+                </header>
+
+                <!-- Explore Search Field -->
+                <section class="explore-search-section">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="explore-search-input" placeholder="Search title, artist, genre, or tag..." aria-label="Search sounds">
+                        <button class="search-clear-btn" id="explore-search-clear" style="display: none;" title="Clear search">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Type Filter Tabs Row (Matching Compose ScrollableTabRow) -->
+                <nav class="scrollable-tab-row" id="explore-type-tabs" aria-label="Sound type filters">
+                    <button class="tab-button filter-tab active" data-type="All">All</button>
+                    <button class="tab-button filter-tab" data-type="Ringtones">Ringtones</button>
+                    <button class="tab-button filter-tab" data-type="Notifications">Notifications</button>
+                    <button class="tab-button filter-tab" data-type="Alarms">Alarms</button>
+                    <button class="tab-button filter-tab" data-type="Sound Effects">Sound Effects</button>
+                </nav>
+
+                <!-- Categories Horizontal Carousel -->
+                <section class="explore-categories-section">
+                    <div class="section-header" style="padding-bottom: 4px;">
+                        <span class="section-header-title">Browse Categories</span>
+                    </div>
+                    <div class="categories-carousel-row" id="explore-categories-carousel">
+                        <!-- Populated dynamically by app.js -->
+                    </div>
+                </section>
+
+                <!-- Subcategories Chips Row -->
+                <section class="explore-subcategories-section">
+                    <div class="subcategories-chips-row" id="explore-subcategories-container" style="display: none;">
+                        <!-- Populated when category selected -->
+                    </div>
+                </section>
+
+                <!-- Sort and Language Controls Row -->
+                <section class="explore-controls-row">
+                    <div class="explore-sort-container">
+                        <label for="explore-sort-select" class="control-label">Sort:</label>
+                        <select id="explore-sort-select" class="custom-select" aria-label="Sort sounds">
+                            <option value="Popular">Most Popular</option>
+                            <option value="Newest">Newest First</option>
+                        </select>
+                    </div>
+
+                    <div class="explore-language-pills-row" id="explore-language-pills">
+                        <span class="lang-pill active" data-lang="All">All</span>
+                        <span class="lang-pill" data-lang="Tamil">Tamil</span>
+                        <span class="lang-pill" data-lang="Hindi">Hindi</span>
+                        <span class="lang-pill" data-lang="English">English</span>
+                    </div>
+                </section>
+
+                <!-- Results List and Counter -->
+                <section class="explore-results-section">
+                    <div class="results-meta-row">
+                        <div id="explore-results-count" class="results-count-label">0 sounds found</div>
+                        <button id="btn-reset-explore-filters" style="display:none;"></button>
+                    </div>
+                    <div class="catalog-cards-list" id="explore-results-list">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 3. CREATE / RINGTONE STUDIO SCREEN         -->
+            <!-- ========================================== -->
+            <section id="screen-create" class="app-screen" aria-label="Ringtone Studio Screen">
+                <header class="studio-header">
+                    <div class="studio-header-info">
+                        <h1 class="studio-header-title" data-i18n="ringtone_studio">Ringtone Studio</h1>
+                        <p class="studio-header-desc" data-i18n="studio_subtitle">Craft, trim, and apply studio sound effects</p>
+                    </div>
+                    <button class="studio-export-btn btn-studio-export" id="studio-export-open-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>Export</span>
+                    </button>
+                </header>
+
+                <!-- 3 Primary Action Buttons Row (Import, Record Mic, Catalog Sound) -->
+                <section class="studio-actions-grid">
+                    <button class="studio-action-card" id="studio-action-import" onclick="document.getElementById('studio-file-input').click()">
+                        <div class="studio-action-bubble" style="background-color: rgba(139, 92, 246, 0.25); color: var(--lavender);">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                            </svg>
+                        </div>
+                        <span class="studio-action-label">Import</span>
+                    </button>
+                    <input type="file" id="studio-file-input" accept="audio/*" style="display: none;">
+
+                    <button class="studio-action-card" id="studio-action-record" onclick="RingoStudio.toggleRecording()">
+                        <div class="studio-action-bubble" style="background-color: rgba(6, 182, 212, 0.25); color: var(--cyan-accent);">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                        </div>
+                        <span class="studio-action-label">Record</span>
+                    </button>
+
+                    <button class="studio-action-card" id="studio-action-catalog" onclick="RingoStudio.openCatalogSelector()">
+                        <div class="studio-action-bubble" style="background-color: rgba(245, 158, 11, 0.25); color: var(--gold-accent);">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            </svg>
+                        </div>
+                        <span class="studio-action-label">Catalog</span>
+                    </button>
+
+                    <button class="studio-action-card" id="studio-action-creations" style="display:none;" onclick="RingoRouter.navigate('library', { tab: 'creations' })"></button>
+                </section>
+
+                <!-- Recording Live Banner -->
+                <div id="studio-rec-banner" class="studio-rec-banner" style="display: none;">
+                    <div class="studio-rec-left">
+                        <div class="rec-pulse-dot"></div>
+                        <div class="rec-info-col">
+                            <span class="rec-status-text">Recording Live Microphone...</span>
+                            <span class="rec-timer-text" id="studio-rec-timer">00:00</span>
+                        </div>
+                    </div>
+                    <button class="rec-done-btn" id="studio-rec-stop-btn">Stop &amp; Use</button>
+                </div>
+
+                <!-- Active Project & Waveform Editor Card -->
+                <section class="studio-project-card">
+                    <div class="studio-project-top">
+                        <div class="studio-project-header-left">
+                            <div class="studio-project-art-thumb">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="color: var(--lavender);">
+                                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                </svg>
+                            </div>
+                            <div class="studio-project-title-col">
+                                <div class="studio-project-tag">ACTIVE PROJECT</div>
+                                <div class="studio-project-name" id="studio-project-title">Midnight Pulse (Studio Master)</div>
+                                <div class="studio-project-subname" id="studio-project-meta">Master Cut · Custom Audio</div>
+                            </div>
+                        </div>
+                        <div class="studio-trim-badge" id="studio-trim-badge">Trim: 24.0s</div>
+                        <span id="studio-project-duration" style="display:none;">24.0s</span>
+                    </div>
+
+                    <!-- Waveform Zoom & Pan Controls -->
+                    <div class="waveform-zoom-bar">
+                        <div class="zoom-btn-group">
+                            <button class="zoom-btn" id="studio-zoom-out" title="Zoom Out">−</button>
+                            <span class="zoom-level-text" id="studio-zoom-val">1.0x</span>
+                            <button class="zoom-btn" id="studio-zoom-in" title="Zoom In">+</button>
+                            <button class="zoom-btn" id="studio-zoom-fit" title="Fit All">Fit</button>
+                        </div>
+                        <div class="preset-durations-row" style="margin-bottom:0;">
+                            <button class="preset-dur-btn" data-dur="5">5s</button>
+                            <button class="preset-dur-btn" data-dur="15">15s</button>
+                            <button class="preset-dur-btn" data-dur="30">30s</button>
+                            <button class="preset-dur-btn active" data-dur="full">Full</button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Waveform Editor Container -->
+                    <div class="studio-canvas-wrapper" id="studio-waveform-container">
+                        <canvas id="studio-canvas" class="studio-waveform-canvas" width="600" height="140"></canvas>
+                    </div>
+
+                    <!-- Timing Readout Labels -->
+                    <div class="studio-time-readout" style="margin-top: 8px;">
+                        <span id="studio-start-readout">Start: 00:01.2</span>
+                        <span id="studio-time-selection" style="color: var(--cyan-accent); font-weight: 700;">Selection: 00:19.2</span>
+                        <span id="studio-end-readout">End: 00:20.4</span>
+                    </div>
+
+                    <!-- Preview & Playback Action Buttons -->
+                    <div class="studio-preview-action-row">
+                        <button class="studio-preview-btn" id="studio-preview-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span>Preview Cut</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Studio Effects Rack Card -->
+                <section class="studio-effects-card">
+                    <div class="effects-rack-header">
+                        <h3 class="effects-rack-title">Studio Effects Rack</h3>
+                    </div>
+
+                    <!-- Sliders Grid -->
+                    <div class="effects-sliders-grid">
+                        <div class="effect-slider-item">
+                            <div class="slider-header-row">
+                                <span class="slider-title">Fade In</span>
+                                <span class="slider-db-readout" id="studio-fade-in-val">1.0s</span>
+                            </div>
+                            <input type="range" class="studio-slider" id="studio-fade-in-slider" min="0" max="5" step="0.1" value="1.0">
+                        </div>
+
+                        <div class="effect-slider-item">
+                            <div class="slider-header-row">
+                                <span class="slider-title">Fade Out</span>
+                                <span class="slider-db-readout" id="studio-fade-out-val">1.5s</span>
+                            </div>
+                            <input type="range" class="studio-slider" id="studio-fade-out-slider" min="0" max="5" step="0.1" value="1.5">
+                        </div>
+
+                        <div class="effect-slider-item">
+                            <div class="slider-header-row">
+                                <span class="slider-title">Volume Boost</span>
+                                <span class="slider-db-readout" id="studio-volume-val">+20%</span>
+                            </div>
+                            <input type="range" class="studio-slider" id="studio-volume-slider" min="0.5" max="2.5" step="0.05" value="1.2">
+                        </div>
+
+                        <div class="effect-slider-item">
+                            <div class="slider-header-row">
+                                <span class="slider-title">Speed / Pitch</span>
+                                <span class="slider-db-readout" id="studio-speed-val">1.0x</span>
+                            </div>
+                            <input type="range" class="studio-slider" id="studio-speed-slider" min="0.5" max="2.0" step="0.05" value="1.0">
+                        </div>
+
+                        <div class="effect-slider-item full-width">
+                            <div class="slider-header-row">
+                                <span class="slider-title">Bass Boost</span>
+                                <span class="slider-db-readout" id="studio-bass-val">+4.0 dB</span>
+                            </div>
+                            <input type="range" class="studio-slider" id="studio-bass-slider" min="0" max="12" step="0.5" value="4.0">
+                        </div>
+
+                        <div class="reverb-toggle-card full-width">
+                            <div class="reverb-toggle-info">
+                                <div class="reverb-title">Concert Hall Reverb</div>
+                                <div class="reverb-subtitle">Simulate rich spatial acoustics</div>
+                            </div>
+                            <label class="toggle-pill-switch">
+                                <input type="checkbox" id="studio-reverb-switch">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Saved Studio Drafts / Projects List -->
+                <section class="studio-drafts-section">
+                    <div class="section-header">
+                        <div class="section-header-info">
+                            <h2 class="section-header-title">Saved Studio Drafts</h2>
+                            <div class="section-header-subtitle">Local offline projects in browser storage</div>
+                        </div>
+                    </div>
+                    <div class="studio-drafts-list" id="studio-creations-list">
+                        <!-- Populated dynamically by studio.js -->
+                    </div>
+                </section>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 4. LIBRARY SCREEN                          -->
+            <!-- ========================================== -->
+            <section id="screen-library" class="app-screen" aria-label="Library Screen">
+                <header class="library-header">
+                    <h1 class="title-large" data-i18n="your_library">Your Library</h1>
+                    <p class="body-small" data-i18n="library_subtitle">Manage downloaded sounds, playlists and custom cuts</p>
+                </header>
+
+                <!-- Storage Summary Banner (Exact match with LibraryScreen.kt lines 175-245) -->
+                <div class="storage-summary-banner">
+                    <div class="storage-banner-left">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+                        </svg>
+                        <div class="storage-info-col">
+                            <span class="storage-title" data-i18n="offline_cache">Offline Sound Cache</span>
+                            <span class="storage-count" id="storage-summary-count">0 files downloaded</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-offline">100% OFFLINE</span>
+                </div>
+
+                <!-- 5 Library Destination Tabs (Downloads, Favorites, Playlists, My Creations, History) -->
+                <nav class="scrollable-tab-row library-tab-bar" aria-label="Library sections">
+                    <button class="tab-button library-tab-button active" data-tab="downloads">
+                        <span>Downloads</span>
+                    </button>
+                    <button class="tab-button library-tab-button" data-tab="favorites">
+                        <span>Favorites</span>
+                    </button>
+                    <button class="tab-button library-tab-button" data-tab="playlists">
+                        <span>Playlists</span>
+                    </button>
+                    <button class="tab-button library-tab-button" data-tab="creations">
+                        <span>My Creations</span>
+                    </button>
+                    <button class="tab-button library-tab-button" data-tab="history">
+                        <span>History</span>
+                    </button>
+                </nav>
+
+                <!-- Active Tab Content Container -->
+                <section class="library-tab-content-area" id="library-tab-content-container">
+                    <div class="loading-spinner"></div>
+                </section>
+
+                <!-- Playlists Dedicated View Container (used by playlists.js) -->
+                <div id="library-playlists-list" style="display: none; padding: 0 16px;">
+                    <div class="playlists-top-bar" style="padding: 10px 0;">
+                        <span class="section-header-title">Your Playlists</span>
+                        <button class="playlist-create-btn" id="playlist-create-btn">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            <span>New Playlist</span>
+                        </button>
+                    </div>
+                    <div id="playlists-cards-wrapper"></div>
+                </div>
+
+                <!-- Single Playlist Detail View Container (used by playlists.js) -->
+                <div id="library-playlist-detail" style="display: none; padding: 0 16px;">
+                    <div class="playlist-hero-top" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <button class="btn btn-ghost btn-sm" id="playlist-detail-back-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                            <span>Back</span>
+                        </button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary btn-sm" id="playlist-hero-add-tracks">+ Add Tracks</button>
+                            <button class="btn btn-primary btn-sm" id="playlist-hero-play-all">Play All</button>
+                        </div>
+                    </div>
+                    <div id="playlist-tracks-container"></div>
+                </div>
+
+                <!-- Downloads fallback list container -->
+                <div id="library-downloads-list" style="display: none;"></div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 5. PROFILE SCREEN                          -->
+            <!-- ========================================== -->
+            <section id="screen-profile" class="app-screen" aria-label="Profile Screen">
+                <!-- Profile Identity Card (Exact match with ProfileScreen.kt lines 60-120) -->
+                <section class="profile-card">
+                    <div class="profile-card-top">
+                        <div class="profile-avatar">
+                            <span>R</span>
+                        </div>
+                        <div class="profile-user-info">
+                            <div class="profile-name-row">
+                                <h1 class="profile-username">RINGO User</h1>
+                                <span class="profile-guest-pass" data-i18n="guest_pass">GUEST PASS</span>
+                            </div>
+                            <p class="profile-user-status" data-i18n="free_forever">100% Free · No Login Required for Core Features</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Group: Audio & Sound -->
+                <div class="settings-section-title">AUDIO &amp; SOUND</div>
+                <div class="settings-option-card" id="profile-equalizer-card" onclick="RingoEqualizer.openModal()">
+                    <div class="settings-option-left">
+                        <svg class="opt-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/>
+                        </svg>
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">Audio Equalizer</span>
+                            <span class="settings-option-subtitle" id="profile-eq-status-label">5-Band EQ + Dynamic Bass Boost</span>
+                        </div>
+                    </div>
+                    <div class="settings-chevron">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+
+                <div class="settings-option-card">
+                    <div class="settings-option-left">
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">Auto-Play Previews</span>
+                            <span class="settings-option-subtitle">Instantly play sound preview on tap</span>
+                        </div>
+                    </div>
+                    <label class="toggle-pill-switch">
+                        <input type="checkbox" id="profile-autoplay-switch" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="settings-option-card">
+                    <div class="settings-option-left">
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">High Bitrate (320 kbps)</span>
+                            <span class="settings-option-subtitle">Export and stream highest audio fidelity</span>
+                        </div>
+                    </div>
+                    <label class="toggle-pill-switch">
+                        <input type="checkbox" id="profile-bitrate-switch" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+
+                <!-- Settings Group: Preferences -->
+                <div class="settings-section-title">PREFERENCES</div>
+                <div class="settings-option-card" id="profile-language-card" onclick="RingoApp.openLanguageModal()">
+                    <div class="settings-option-left">
+                        <svg class="opt-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/>
+                        </svg>
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">App Interface Language</span>
+                            <span class="settings-option-subtitle" id="profile-app-language-label">English</span>
+                        </div>
+                    </div>
+                    <div class="settings-chevron">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+
+                <div class="settings-option-card" onclick="RingoApp.openLanguageModal()">
+                    <div class="settings-option-left">
+                        <svg class="opt-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">Sound Content Language</span>
+                            <span class="settings-option-subtitle" id="profile-content-language-label">All Languages</span>
+                        </div>
+                    </div>
+                    <div class="settings-chevron">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+
+                <!-- Settings Group: Storage & Device Cache -->
+                <div class="settings-section-title">STORAGE &amp; DEVICE CACHE</div>
+                <div class="settings-option-card">
+                    <div class="settings-option-left">
+                        <div class="settings-option-text">
+                            <span class="settings-option-title" id="profile-cache-size">Audio Cache: 0.0 MB</span>
+                            <span class="settings-option-subtitle">Clearing cache preserves your saved Studio projects</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btn-profile-clear-cache" style="color: var(--pink-accent); border-color: rgba(236,72,153,0.4);" data-i18n="clear_cache">
+                        Clear
+                    </button>
+                </div>
+
+                <!-- Settings Group: About RINGO -->
+                <div class="settings-section-title">ABOUT RINGO</div>
+                <div class="settings-option-card" id="profile-about-card" onclick="RingoApp.openAboutModal()">
+                    <div class="settings-option-left">
+                        <svg class="opt-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <div class="settings-option-text">
+                            <span class="settings-option-title">RINGO 100% Free Manifesto &amp; Version</span>
+                            <span class="settings-option-subtitle">Version 1.0 · Free Ad-Supported · Zero Paywalls</span>
+                        </div>
+                    </div>
+                    <div class="settings-chevron">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ========================================== -->
+        <!-- PERSISTENT FLOATING MINI PLAYER            -->
+        <!-- Exact match with MiniPlayer.kt             -->
+        <!-- ========================================== -->
+        <aside id="mini-player-container" class="mini-player-container hidden" aria-label="Audio Mini Player">
+            <div class="mini-player-card" id="mini-player-card">
+                <div class="mini-player-content">
+                    <div class="mini-player-art" id="mini-player-art-box">
+                        <img id="mini-player-art-img" src="assets/images/ic_launcher.png" alt="Cover" style="display:none;">
+                        <div class="mini-cover-fallback">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="mini-player-info">
+                        <div class="mini-player-title" id="mini-player-title">No Track Playing</div>
+                        <div class="mini-player-subtitle" id="mini-player-subtitle">Tap any sound to start preview</div>
+                    </div>
+
+                    <div class="mini-player-actions">
+                        <button class="mini-player-btn" id="mini-play-btn" title="Play/Pause" aria-label="Play or Pause">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                        <button class="mini-player-btn close" id="mini-close-btn" title="Close" aria-label="Close Mini Player">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Mini Scrubber Track -->
+                <div class="mini-player-progress-bar">
+                    <div class="mini-player-progress-fill" id="mini-progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- FLOATING PILL NAVIGATION BAR               -->
+        <!-- Exact match with MainActivity.kt:865-950   -->
+        <!-- 5 Floating Icons, NO Text Labels           -->
+        <!-- ========================================== -->
+        <nav id="pill-nav-container" class="pill-nav-container" aria-label="Application navigation">
+            <div class="pill-nav-bar">
+                <button class="pill-nav-item active" data-target="home" aria-selected="true" aria-label="Home tab">
+                    <div class="pill-nav-indicator">
+                        <svg class="pill-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="pill-nav-item" data-target="explore" aria-selected="false" aria-label="Explore tab">
+                    <div class="pill-nav-indicator">
+                        <svg class="pill-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="pill-nav-item" data-target="create" aria-selected="false" aria-label="Create Studio tab">
+                    <div class="pill-nav-indicator">
+                        <svg class="pill-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="pill-nav-item" data-target="library" aria-selected="false" aria-label="Library tab">
+                    <div class="pill-nav-indicator">
+                        <svg class="pill-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 5h-3v5.5c0 1.38-1.12 2.5-2.5 2.5S10 13.88 10 12.5s1.12-2.5 2.5-2.5c.57 0 1.08.19 1.5.51V5h4v2zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <button class="pill-nav-item" data-target="profile" aria-selected="false" aria-label="Profile tab">
+                    <div class="pill-nav-indicator">
+                        <svg class="pill-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </nav>
+
+    </div><!-- End #app -->
+
+    <!-- ========================================== -->
+    <!-- MODAL BOTTOM SHEETS & DIALOGS              -->
+    <!-- Exact match with Compose Bottom Sheets     -->
+    <!-- ========================================== -->
+
+    <!-- 1. Full-Screen Audio Player Modal (FullScreenPlayerSheet.kt) -->
+    <div id="full-player-modal" class="modal-sheet-overlay" role="dialog" aria-modal="true" aria-label="Now Playing">
+        <div class="full-player-sheet">
+            <header class="full-player-header">
+                <button class="full-player-icon-btn sheet-dismiss-btn" id="full-player-close-btn" title="Collapse Player" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+                <div class="full-player-header-title header-center-title">
+                    <span class="tag">NOW PLAYING</span>
+                    <span class="playlist-name" id="full-player-playlist-name" style="display:none;"></span>
+                </div>
+                <button class="full-player-icon-btn" id="full-player-report-btn" title="Options / Report" aria-label="Options">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <!-- Spinning Vinyl Artwork Disc Hero -->
+            <div class="full-player-disc-wrapper full-player-artwork-area">
+                <div class="full-player-disc vinyl-disc-wrapper" id="full-player-disc">
+                    <div class="full-player-disc-inner vinyl-center-art" id="full-player-art">
+                        <img id="full-player-cover-img" class="vinyl-cover-img" src="assets/images/ic_launcher.png" alt="Cover" style="display:none;">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" style="color:var(--lavender);">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                    </div>
+                    <div class="full-player-disc-center-dot"></div>
+                </div>
+            </div>
+
+            <!-- Track Info & Creator -->
+            <div class="full-player-track-info full-player-info-row">
+                <h2 class="full-player-track-title full-title" id="full-player-title">Song Title</h2>
+                <div class="full-player-artist-row full-creator">
+                    <span id="full-player-artist">Artist</span>
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px; height:16px; color:var(--cyan-accent); margin-left:4px;">
+                        <path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/>
+                    </svg>
+                </div>
+                <div class="full-player-spec-summary full-spec-sub" id="full-player-spec-sub">Standard Audio</div>
+            </div>
+
+            <!-- Interactive Waveform Visualizer Canvas -->
+            <canvas class="full-player-waveform-canvas" id="full-player-waveform" width="340" height="52"></canvas>
+
+            <!-- Scrubber Range Input & Timestamps -->
+            <div class="full-player-scrubber-wrapper full-player-scrubber-area">
+                <input type="range" class="full-player-scrubber audio-scrubber-range" id="full-player-scrubber" min="0" max="1000" step="1" value="0" aria-label="Audio scrubber">
+                <div class="full-player-timestamps scrubber-time-row">
+                    <span id="full-player-current-time">0:00</span>
+                    <span id="full-player-total-time">0:00</span>
+                </div>
+            </div>
+
+            <!-- Playback Controls Row: Share | Loop | Prev | Play | Next | Fav | Equalizer -->
+            <div class="full-player-controls-row">
+                <button class="control-btn icon-btn" id="full-player-share-btn" title="Share" aria-label="Share">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn icon-btn" id="full-player-loop-btn" title="Toggle Loop" aria-label="Toggle Loop">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn icon-btn" id="full-player-prev-btn" title="Previous Track" aria-label="Previous Track">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn-play full-play-large-btn" id="full-player-play-btn" title="Play / Pause" aria-label="Play or Pause">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn icon-btn" id="full-player-next-btn" title="Next Track" aria-label="Next Track">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn favorite icon-btn" id="full-player-fav-btn" title="Favorite" aria-label="Favorite">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </button>
+
+                <button class="control-btn equalizer header-action-btn" id="full-player-eq-btn" title="Equalizer" aria-label="Equalizer" onclick="RingoEqualizer.openModal()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Primary Action Buttons -->
+            <div class="full-player-actions-col full-player-bottom-actions">
+                <button class="full-player-set-btn bottom-action-btn highlight" id="full-player-set-sound-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                    </svg>
+                    <span>Set as Sound / Ringtone</span>
+                </button>
+                <button class="full-player-download-btn bottom-action-btn" id="full-player-download-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    <span>Download Audio</span>
+                </button>
+                <button class="full-player-download-btn bottom-action-btn" id="full-player-playlist-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
+                    </svg>
+                    <span>Add to Playlist</span>
+                </button>
+            </div>
+
+            <!-- Audio Spec Metadata (Hidden, for player.js) -->
+            <div class="audio-specs-container" style="display: none;">
+                <span id="spec-val-format">MP3 320kbps</span>
+                <span id="spec-val-size">3.2 MB</span>
+                <span id="spec-val-year">2024</span>
+                <span id="spec-val-album">Single</span>
+                <span id="spec-val-singers">Artist</span>
+                <span id="spec-val-composer">Composer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Equalizer Bottom Sheet (EqualizerSheet.kt) -->
+    <div id="equalizer-modal" class="modal-sheet-overlay" role="dialog" aria-modal="true" aria-label="Equalizer">
+        <div class="equalizer-sheet equalizer-modal-content">
+            <header class="eq-header-row sheet-header">
+                <div class="eq-header-left sheet-title-text">
+                    <div class="eq-icon-bubble" id="eq-icon-bubble">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/>
+                        </svg>
+                    </div>
+                    <div class="eq-title-col">
+                        <h2 class="eq-title sheet-title">Audio Equalizer</h2>
+                        <span class="eq-status-sub sheet-sub" id="eq-status-subtitle">Hardware-accelerated 5-Band BiquadFilter Graph</span>
+                    </div>
+                </div>
+                <div class="eq-header-right">
+                    <label class="toggle-pill-switch" title="Toggle Equalizer">
+                        <input type="checkbox" id="eq-master-switch" checked onchange="RingoEqualizer.setEnabled(this.checked)">
+                        <span class="switch-slider"></span>
+                    </label>
+                    <button class="sheet-dismiss-btn" id="btn-dismiss-equalizer" onclick="RingoEqualizer.closeModal()" title="Close Equalizer" aria-label="Close Equalizer">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Live Frequency Curve Preview Card -->
+            <div class="eq-graph-card eq-visualizer-container" id="eq-graph-card">
+                <div class="eq-graph-header">
+                    <div class="eq-graph-label">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 18h2V6H7v12zm4 4h2V2h-2v20zm-8-8h2v-4H3v4zm12 4h2V6h-2v12zm4-8v4h2v-4h-2z"/>
+                        </svg>
+                        <span>FREQUENCY RESPONSE</span>
+                    </div>
+                    <button class="eq-reset-btn" onclick="RingoEqualizer.resetFlat()" title="Reset to Flat">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                </div>
+                <canvas class="eq-canvas" id="eq-response-canvas" width="500" height="120"></canvas>
+            </div>
+
+            <!-- EQ Presets Row -->
+            <div class="eq-presets-label">PRESETS</div>
+            <div class="eq-presets-row eq-presets-chips-row" id="eq-presets-container">
+                <!-- Flat, Bass Boost, Pop, Rock, Vocal, Jazz, Classical -->
+            </div>
+
+            <!-- 5-Band Sliders Card (Horizontal rows matching EqualizerSheet.kt) -->
+            <div class="eq-bands-card" id="eq-bands-container">
+                <div class="eq-band-row">
+                    <span class="eq-band-freq" id="eq-label-0">60Hz</span>
+                    <input type="range" class="eq-band-slider" id="eq-slider-0" min="-12" max="12" step="0.5" value="0" oninput="RingoEqualizer.setBandLevel(0, parseFloat(this.value))">
+                    <span class="eq-band-db" id="eq-readout-0">0.0 dB</span>
+                </div>
+                <div class="eq-band-row">
+                    <span class="eq-band-freq" id="eq-label-1">230Hz</span>
+                    <input type="range" class="eq-band-slider" id="eq-slider-1" min="-12" max="12" step="0.5" value="0" oninput="RingoEqualizer.setBandLevel(1, parseFloat(this.value))">
+                    <span class="eq-band-db" id="eq-readout-1">0.0 dB</span>
+                </div>
+                <div class="eq-band-row">
+                    <span class="eq-band-freq" id="eq-label-2">910Hz</span>
+                    <input type="range" class="eq-band-slider" id="eq-slider-2" min="-12" max="12" step="0.5" value="0" oninput="RingoEqualizer.setBandLevel(2, parseFloat(this.value))">
+                    <span class="eq-band-db" id="eq-readout-2">0.0 dB</span>
+                </div>
+                <div class="eq-band-row">
+                    <span class="eq-band-freq" id="eq-label-3">3.6kHz</span>
+                    <input type="range" class="eq-band-slider" id="eq-slider-3" min="-12" max="12" step="0.5" value="0" oninput="RingoEqualizer.setBandLevel(3, parseFloat(this.value))">
+                    <span class="eq-band-db" id="eq-readout-3">0.0 dB</span>
+                </div>
+                <div class="eq-band-row">
+                    <span class="eq-band-freq" id="eq-label-4">14kHz</span>
+                    <input type="range" class="eq-band-slider" id="eq-slider-4" min="-12" max="12" step="0.5" value="0" oninput="RingoEqualizer.setBandLevel(4, parseFloat(this.value))">
+                    <span class="eq-band-db" id="eq-readout-4">0.0 dB</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Bass Boost Card -->
+            <div class="eq-bass-card eq-bass-boost-card">
+                <div class="bass-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="bass-title" style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Dynamic Bass Boost</span>
+                    <span class="bass-value eq-band-db" id="eq-bass-readout">0%</span>
+                </div>
+                <input type="range" class="eq-band-slider" id="eq-bass-slider" min="0" max="100" step="1" value="0" oninput="RingoEqualizer.setBassBoost(parseFloat(this.value))" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Set as Sound / Ringtone Modal (SetRingtoneDialog.kt) -->
+    <div id="set-ringtone-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Set as Sound">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Set as Ringtone / Sound</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="set-ringtone-close-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div style="margin-bottom: 12px;">
+                    <div id="set-ringtone-title" style="font-size: 16px; font-weight: bold; color: var(--text-primary);">Track Title</div>
+                    <div id="set-ringtone-desc" style="font-size: 12px; color: var(--text-secondary);">Artist · 00:30</div>
+                </div>
+
+                <div style="background: var(--obsidian); border-radius: 14px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--subtle-border);">
+                    <canvas id="set-ringtone-waveform" width="350" height="70" style="width: 100%; height: 70px; display:block;"></canvas>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                        <span id="set-ringtone-start-time">Start: 0.0s</span>
+                        <span id="set-ringtone-duration-badge" style="color: var(--cyan-accent); font-weight: bold;">Clip: 30.0s</span>
+                        <span id="set-ringtone-end-time">End: 30.0s</span>
+                    </div>
+                </div>
+
+                <div class="preset-durations-row" style="margin-bottom: 16px;">
+                    <button class="preset-ring-dur preset-dur-btn" data-dur="5">5s Alert</button>
+                    <button class="preset-ring-dur preset-dur-btn" data-dur="15">15s Clip</button>
+                    <button class="preset-ring-dur preset-dur-btn" data-dur="30">30s Ring</button>
+                    <button class="preset-ring-dur preset-dur-btn active" data-dur="full">Full</button>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" id="set-ringtone-preview-btn" style="flex: 1;">Preview Cut</button>
+                    <button class="btn btn-primary" id="set-ringtone-apply-btn" style="flex: 1;">Set as Sound</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Android Ringtone Picker Configuration Guide Modal -->
+    <div id="android-ringtone-guide-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Android Ringtone Guide">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Set as Ringtone on Android</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="guide-ok-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p style="color:var(--text-secondary); font-size:13px; line-height:1.6; margin-bottom:12px;">
+                    Your custom cut for <strong id="guide-track-title" style="color:var(--lavender);">this track</strong> has been downloaded to your device!
+                </p>
+                <div style="background:var(--obsidian); border-radius:12px; padding:12px; margin-bottom:14px; font-size:12px; color:var(--text-primary); line-height:1.6; border:1px solid var(--subtle-border);">
+                    <strong>1.</strong> Open phone <strong>Settings &rarr; Sound &amp; Vibration</strong><br>
+                    <strong>2.</strong> Tap <strong>Phone Ringtone</strong> (or Notification Sound)<br>
+                    <strong>3.</strong> Tap <strong>Custom Ringtone</strong> (or "+ Add from device")<br>
+                    <strong>4.</strong> Select your saved RINGO file from the <strong>Downloads / Music</strong> folder!
+                </div>
+                <button class="btn btn-primary full-width" onclick="document.getElementById('android-ringtone-guide-modal').classList.remove('show')">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Add to Playlist Modal (AddToPlaylistSheet.kt) -->
+    <div id="add-to-playlist-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Add to Playlist">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Add to Playlist</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="add-playlist-close-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <img id="add-playlist-sound-art" src="assets/images/ic_launcher.png" style="width:36px; height:36px; border-radius:8px;" alt="art">
+                    <span id="add-playlist-sound-title" style="font-weight:600; color:var(--text-primary); font-size:13px;">Song Title</span>
+                </div>
+
+                <div id="add-playlist-items-list" style="max-height:40vh; overflow-y:auto; margin-bottom:12px;"></div>
+
+                <div style="margin-top:8px;">
+                    <button class="btn btn-secondary btn-sm" id="add-playlist-inline-create-btn">+ Create New Playlist</button>
+                    <div id="add-playlist-inline-form" style="display:none; margin-top:8px;">
+                        <input type="text" id="add-playlist-inline-title" class="custom-input-field" placeholder="Playlist title" style="margin-bottom:6px;">
+                        <input type="text" id="add-playlist-inline-desc" class="custom-input-field" placeholder="Description (optional)" style="margin-bottom:6px;">
+                        <button class="btn btn-primary btn-sm" id="add-playlist-inline-save">Create &amp; Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. New Playlist Modal -->
+    <div id="playlist-new-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Create Playlist">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title" id="playlist-dialog-title">Create New Playlist</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="playlist-new-cancel" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div class="form-group">
+                    <label class="form-label" for="playlist-new-title">Playlist Name</label>
+                    <input type="text" id="playlist-new-title" class="custom-input-field" placeholder="e.g. Morning Alarms, Top BGM">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="playlist-new-desc">Description (Optional)</label>
+                    <textarea id="playlist-new-desc" class="custom-textarea-field" rows="2" placeholder="Describe this collection..."></textarea>
+                </div>
+                <div class="dialog-actions-row">
+                    <button class="btn btn-secondary" onclick="document.getElementById('playlist-new-modal').classList.remove('show')">Cancel</button>
+                    <button class="btn btn-primary" id="playlist-new-save">Save Playlist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Studio Catalog Selector Modal -->
+    <div id="studio-catalog-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Choose Sound from Catalog">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Choose Track to Trim</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="studio-catalog-close-btn" onclick="document.getElementById('studio-catalog-modal').classList.remove('show')" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body" style="padding-bottom: 24px;">
+                <div id="studio-catalog-list" style="max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Studio Export Modal -->
+    <div id="studio-export-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Export Master Ringtone">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Export Master Audio Cut</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="studio-export-cancel-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div class="form-group">
+                    <label class="form-label" for="studio-export-name-input">Ringtone Title</label>
+                    <input type="text" id="studio-export-name-input" class="custom-input-field" value="My_Custom_Ringtone">
+                </div>
+                <div style="background:var(--obsidian); border-radius:12px; padding:12px; margin-bottom:14px; border:1px solid var(--subtle-border); font-size:12px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="color:var(--text-secondary);">Audio Format</span>
+                        <span style="font-weight:600; color:var(--text-primary);">16-bit PCM WAV (Master)</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="color:var(--text-secondary);">Sample Rate</span>
+                        <span style="font-weight:600; color:var(--text-primary);">44.1 kHz Stereo</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-secondary);">Duration</span>
+                        <span style="font-weight:600; color:var(--cyan-accent);" id="studio-export-duration-label">24.0s</span>
+                    </div>
+                </div>
+                <div class="dialog-actions-row">
+                    <button class="btn btn-secondary" onclick="document.getElementById('studio-export-modal').classList.remove('show')">Cancel</button>
+                    <button class="btn btn-primary" id="studio-export-confirm-btn">Render &amp; Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. App Interface Language Select Modal -->
+    <div id="language-select-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Language Selector">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Select Language</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn modal-close-btn" onclick="document.getElementById('language-select-modal').classList.remove('active')">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div class="language-options-list">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. About RINGO / 100% Free Manifesto Modal -->
+    <div id="about-ringo-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="About RINGO">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">RINGO — 100% Free Native Audio</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn modal-close-btn" onclick="document.getElementById('about-ringo-modal').classList.remove('active')">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p style="color:var(--text-secondary); font-size:13px; line-height:1.6; margin-bottom:12px;">
+                    RINGO is built with a simple, honest principle:
+                </p>
+                <div style="background:var(--obsidian); border:1px solid var(--card-border); border-radius:12px; padding:12px; margin-bottom:12px;">
+                    <strong style="color:var(--lavender); display:block; margin-bottom:4px;">100% Free Forever</strong>
+                    <span style="color:var(--text-secondary); font-size:12px;">No subscriptions. No paywalls. No premium tiers. All ringtones, audio filters, waveforms, equalizer settings and studio editing features are unrestricted for everyone.</span>
+                </div>
+                <div style="background:var(--obsidian); border:1px solid var(--card-border); border-radius:12px; padding:12px; margin-bottom:12px;">
+                    <strong style="color:var(--cyan-accent); display:block; margin-bottom:4px;">Ad-Supported Model</strong>
+                    <span style="color:var(--text-secondary); font-size:12px;">A single unobtrusive AdMob banner supports audio hosting and development costs while keeping all sound downloads and studio exports totally free.</span>
+                </div>
+                <div style="background:var(--obsidian); border:1px solid var(--card-border); border-radius:12px; padding:12px; margin-bottom:16px;">
+                    <strong style="color:var(--emerald-success); display:block; margin-bottom:4px;">Private &amp; Offline Ready</strong>
+                    <span style="color:var(--text-secondary); font-size:12px;">No accounts or phone numbers required. All downloads and studio cuts are stored locally on your device in IndexedDB.</span>
+                </div>
+                <div style="text-align:center; font-size:11px; color:var(--text-muted);">
+                    RINGO Mobile Web Experience v1.0.0
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Report Audio / DMCA Modal (ReportDialog.kt) -->
+    <div id="report-dialog-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Report Audio">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Report Content / DMCA</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="report-cancel-btn" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <p style="color:var(--text-secondary); font-size:12px; margin-bottom:12px;" id="report-sound-title">Report Sound</p>
+                <div class="form-group">
+                    <label class="form-label">Reason</label>
+                    <select class="custom-select" style="width: 100%;">
+                        <option>Copyright / DMCA Violation</option>
+                        <option>Inappropriate or Offensive Audio</option>
+                        <option>Poor Quality / Corrupted File</option>
+                    </select>
+                </div>
+                <div class="dialog-actions-row">
+                    <button class="btn btn-secondary" onclick="document.getElementById('report-dialog-modal').classList.remove('show')">Cancel</button>
+                    <button class="btn btn-primary" id="report-submit-btn">Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. Playlist Pick Tracks Modal -->
+    <div id="playlist-pick-tracks-modal" class="modal-sheet-overlay modal-backdrop" role="dialog" aria-modal="true" aria-label="Pick Tracks">
+        <div class="modal-dialog-content bottom-sheet">
+            <header class="dialog-header bottom-sheet-header">
+                <div class="dialog-title bottom-sheet-title">Add Tracks to Playlist</div>
+                <button class="dialog-close-btn bottom-sheet-close-btn" id="playlist-pick-tracks-close" aria-label="Close dialog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="dialog-body">
+                <div id="playlist-pick-tracks-list" style="max-height:50vh; overflow-y:auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast / Snackbar Notifications Container -->
+    <div id="toast-notifications-container" class="toast-notifications-container" aria-live="polite"></div>
+
+    <!-- ========================================== -->
+    <!-- SCRIPT DEPENDENCIES (Pure Vanilla ES6+)    -->
+    <!-- No Frameworks, No Build Step Required      -->
+    <!-- ========================================== -->
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/audio-engine.js"></script>
+    <script src="js/equalizer.js"></script>
+    <script src="js/waveform.js"></script>
+    <script src="js/downloads.js"></script>
+    <script src="js/playlists.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/studio.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

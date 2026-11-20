@@ -1,0 +1,804 @@
+/* ==========================================================================
+   RINGO — Library, Profile & Equalizer Styles
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Library Header & Storage Summary Banner
+   -------------------------------------------------------------------------- */
+.library-header {
+  padding: 16px 16px 8px 16px;
+}
+
+.storage-summary-banner {
+  background-color: var(--elevated-dark);
+  border: 1px solid var(--subtle-border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin: 10px 16px 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.storage-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+}
+
+.storage-banner-left svg {
+  color: var(--cyan-accent);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.storage-info-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.storage-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.storage-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.library-tab-view {
+  display: none;
+  padding-bottom: 20px;
+}
+
+.library-tab-view.active {
+  display: block;
+}
+
+.library-tab-bar {
+  margin-bottom: 8px;
+}
+
+.library-tab-content-area {
+  min-height: 200px;
+  padding-bottom: 24px;
+}
+
+.playlists-list-container,
+.creations-list-container {
+  padding-bottom: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Creations & Drafts in Library Tab
+   -------------------------------------------------------------------------- */
+.creation-item-card {
+  background-color: #161220;
+  border: 1px solid var(--subtle-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.creation-item-card:hover, .creation-item-card:active {
+  border-color: var(--card-border-active);
+  background-color: var(--elevated-card);
+}
+
+.creation-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.creation-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.creation-item-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.creation-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.creation-action-btn {
+  background: none;
+  border: none;
+  color: var(--lavender);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.creation-action-btn:active {
+  transform: scale(0.9);
+}
+
+.creation-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.creation-action-btn.delete {
+  color: var(--text-muted);
+}
+
+.creation-action-btn.delete:hover, .creation-action-btn.delete:active {
+  color: var(--pink-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Playlists Tab Styles
+   -------------------------------------------------------------------------- */
+.playlists-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 6px 16px;
+}
+
+.playlist-create-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--elevated-dark);
+  border: 1px solid var(--card-border);
+  color: var(--lavender);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.playlist-create-btn:active {
+  transform: scale(0.96);
+}
+
+.playlist-create-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.playlist-card-item {
+  background-color: #161220;
+  border: 1px solid var(--subtle-border);
+  border-radius: 16px;
+  padding: 14px;
+  margin: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.playlist-card-item:hover, .playlist-card-item:active {
+  border-color: var(--card-border-active);
+  background-color: var(--elevated-card);
+}
+
+.playlist-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-icon-bubble {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lavender);
+  flex-shrink: 0;
+}
+
+.playlist-icon-bubble svg {
+  width: 24px;
+  height: 24px;
+}
+
+.playlist-card-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-card-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-card-count {
+  font-size: 11px;
+  color: var(--cyan-accent);
+  margin-top: 2px;
+}
+
+/* Playlist Detail View */
+.playlist-detail-container {
+  padding: 8px 16px;
+}
+
+.playlist-detail-back-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.playlist-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--lavender);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.playlist-back-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.playlist-detail-hero {
+  background-color: var(--elevated-dark);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.playlist-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.playlist-hero-cover {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  background-color: rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lavender);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.playlist-hero-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playlist-hero-cover svg {
+  width: 28px;
+  height: 28px;
+}
+
+.playlist-hero-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-hero-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-hero-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.playlist-hero-tracks-meta {
+  font-size: 11px;
+  color: var(--cyan-accent);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.playlist-hero-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.playlist-play-all-btn {
+  flex: 1;
+  height: 42px;
+  background-color: var(--primary-violet);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.playlist-play-all-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.playlist-add-tracks-btn {
+  flex: 1;
+  height: 42px;
+  background-color: #201830;
+  border: 1px solid var(--card-border);
+  color: var(--lavender);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.playlist-add-tracks-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* --------------------------------------------------------------------------
+   Profile Screen Styles
+   -------------------------------------------------------------------------- */
+.profile-card {
+  background-color: var(--elevated-dark);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 18px;
+  margin: 12px 16px 16px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(139, 92, 246, 0.25);
+  border: 1.5px solid var(--primary-violet);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lavender);
+  font-size: 24px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.profile-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.profile-username {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-guest-pass {
+  background-color: var(--emerald-alpha20);
+  border: 0.5px solid var(--emerald-success);
+  color: var(--emerald-success);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.profile-user-status {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.settings-section-title {
+  padding: 14px 16px 6px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--lavender);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.settings-option-card {
+  background-color: var(--elevated-dark);
+  border: 1px solid var(--subtle-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 4px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.settings-option-card:hover, .settings-option-card:active {
+  border-color: var(--card-border-active);
+}
+
+.settings-option-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+}
+
+.settings-option-left svg.opt-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--lavender);
+  flex-shrink: 0;
+}
+
+.settings-option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-option-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-option-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-chevron svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Audio Equalizer Modal Sheet
+   -------------------------------------------------------------------------- */
+#equalizer-modal {
+  z-index: 3500;
+}
+
+.equalizer-sheet {
+  background-color: var(--elevated-dark);
+  max-width: 600px;
+  width: 100%;
+}
+
+.eq-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.eq-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.eq-icon-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(139, 92, 246, 0.2);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lavender);
+}
+
+.eq-icon-bubble.active {
+  background-color: rgba(6, 182, 212, 0.2);
+  border-color: var(--cyan-accent);
+  color: var(--cyan-accent);
+}
+
+.eq-icon-bubble svg {
+  width: 22px;
+  height: 22px;
+}
+
+.eq-title-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.eq-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.eq-status-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.eq-status-sub.active {
+  color: var(--cyan-accent);
+}
+
+.eq-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Frequency Response Graph Card */
+.eq-graph-card {
+  background-color: var(--obsidian);
+  border: 1px solid var(--subtle-border);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.eq-graph-card.active {
+  border-color: rgba(139, 92, 246, 0.55);
+}
+
+.eq-graph-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.eq-graph-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--lavender);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.eq-graph-label svg {
+  width: 15px;
+  height: 15px;
+  color: var(--cyan-accent);
+}
+
+.eq-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #1D162B;
+  border: 0.5px solid var(--card-border);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.eq-reset-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.eq-canvas {
+  width: 100%;
+  height: 68px;
+  display: block;
+}
+
+/* EQ Presets Row */
+.eq-presets-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--lavender);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.eq-presets-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 16px;
+}
+
+.eq-presets-row::-webkit-scrollbar {
+  display: none;
+}
+
+.eq-preset-chip {
+  padding: 7px 14px;
+  border-radius: 20px;
+  background-color: #191424;
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.eq-preset-chip.active {
+  background-color: var(--primary-violet);
+  color: #FFFFFF;
+  border-color: var(--lavender);
+  font-weight: 700;
+}
+
+/* 5-Band Sliders Card */
+.eq-bands-card {
+  background-color: var(--obsidian);
+  border: 1px solid var(--subtle-border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.eq-band-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.eq-band-freq {
+  width: 48px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.eq-band-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #211A30;
+  border-radius: 2px;
+  outline: none;
+}
+
+.eq-band-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cyan-accent);
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
+  cursor: pointer;
+  border: none;
+}
+
+.eq-band-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cyan-accent);
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
+  cursor: pointer;
+  border: none;
+}
+
+.eq-band-db {
+  width: 52px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lavender);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Dynamic Bass Boost Card */
+.eq-bass-card {
+  background-color: var(--obsidian);
+  border: 1px solid var(--subtle-border);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
