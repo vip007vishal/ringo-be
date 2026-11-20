@@ -510,6 +510,7 @@ const RingoComponents = (() => {
     const card = document.createElement('div');
     card.className = 'featured-hero-card';
     card.dataset.id = sound.id;
+    card.dataset.duration = sound.durationFormatted || '00:30';
 
     const isFav = RingoStorage.isFavorite(sound.id);
     const isDl = sound.isDownloaded;
@@ -525,7 +526,7 @@ const RingoComponents = (() => {
 
       <div class="featured-hero-info">
         <div class="featured-hero-art">
-          <img src="${sound.coverUrl || 'assets/images/ic_launcher.png'}" alt="${escapeHtml(sound.title)}" onerror="this.src='assets/images/ic_launcher.png'">
+          <img src="${sound.coverUrl || 'assets/images/ic_launcher.png'}" alt="${escapeHtml(sound.title)}" onerror="this.onerror=null; this.src='assets/images/ic_launcher.png'">
         </div>
         <div class="featured-hero-text">
           <h3 class="featured-hero-title">${escapeHtml(sound.title)}</h3>
@@ -533,52 +534,92 @@ const RingoComponents = (() => {
         </div>
       </div>
 
-      <canvas class="featured-waveform-canvas" id="featured-waveform-canvas" data-id="${sound.id}" width="340" height="36" style="width:100%; height:36px;"></canvas>
+      <canvas class="featured-waveform-canvas" id="featured-waveform-canvas" data-id="${sound.id}" width="340" height="36" style="width:100%; height:36px; cursor: pointer;"></canvas>
 
       <div class="featured-hero-actions">
         <div class="featured-actions-left">
-          <button class="featured-play-btn" id="featured-play-btn" title="Play">
+          <button class="featured-play-btn" id="featured-play-btn" title="Play" aria-label="Play Featured Sound">
             ${getIcon('play')}
           </button>
-          <button class="featured-download-btn dl-btn ${isDl ? 'downloaded' : ''}" title="Download">
+          <button class="featured-download-btn dl-btn ${isDl ? 'downloaded' : ''}" title="Download" aria-label="Download Featured Sound">
             ${getIcon(isDl ? 'download_done' : 'download')}
           </button>
         </div>
-        <button class="featured-set-btn featured-set-sound-btn">
+        <button class="featured-set-btn featured-set-sound-btn" aria-label="Set as Sound">
           ${getIcon('ring_volume')}
           <span>Set as Sound</span>
         </button>
       </div>
     `;
 
-    // Render waveform preview on card canvas
+    // Render waveform preview on card canvas & bind amplitudes
     const canvas = card.querySelector('#featured-waveform-canvas');
     if (canvas) {
+      canvas.amplitudes = sound.waveformAmplitudes;
       setTimeout(() => {
         RingoWaveform.drawCardWaveform(canvas, sound.waveformAmplitudes, 0, false, {
           activeColor: '#B58AFF',
           inactiveColor: '#282138'
         });
-      }, 30);
+      }, 50);
+
+      // Interactive scrub/seek directly from the Hero Waveform
+      const handleCanvasSeek = (e) => {
+        e.stopPropagation();
+        const rect = canvas.getBoundingClientRect();
+        const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const totalMs = sound.durationMs || 30000;
+        const targetMs = Math.round(ratio * totalMs);
+
+        const state = RingoAudioEngine.getState();
+        if (!state.currentSound || state.currentSound.id !== sound.id) {
+          RingoAudioEngine.play(sound, targetMs);
+        } else {
+          RingoAudioEngine.seekTo(targetMs);
+          if (!state.isPlaying) {
+            RingoAudioEngine.play(sound, targetMs);
+          }
+        }
+        if (window.RingoPlayerUI) RingoPlayerUI.showMiniPlayer();
+      };
+
+      canvas.addEventListener('click', handleCanvasSeek);
     }
 
-    // Click on Card opens full player
+    // Sync initial playback state if already playing
+    const curState = RingoAudioEngine.getState();
+    if (curState.currentSound && curState.currentSound.id === sound.id && curState.isPlaying) {
+      card.classList.add('playing');
+      const pb = card.querySelector('.featured-play-btn');
+      if (pb) pb.innerHTML = getIcon('pause');
+    }
+
+    // Click on Card body: Plays sound and opens player sheet (exact match with Compose HomeScreen.kt:417 onSoundClick)
     card.addEventListener('click', (e) => {
-      if (e.target.closest('button')) return;
-      if (window.RingoPlayerUI) RingoPlayerUI.openFullPlayer();
+      if (e.target.closest('button') || e.target.closest('canvas')) return;
+      const state = RingoAudioEngine.getState();
+      if (!state.currentSound || state.currentSound.id !== sound.id) {
+        RingoAudioEngine.play(sound);
+      }
+      if (window.RingoPlayerUI) {
+        RingoPlayerUI.showMiniPlayer();
+        RingoPlayerUI.openFullPlayer();
+      }
     });
 
-    // Play/Pause
-    const playBtn = card.querySelector('#featured-play-btn');
+    // Play/Pause button
+    const playBtn = card.querySelector('.featured-play-btn');
     if (playBtn) {
       playBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         RingoAudioEngine.togglePlayPause(sound);
+        if (window.RingoPlayerUI) RingoPlayerUI.showMiniPlayer();
       });
     }
 
-    // Download
-    const dlBtn = card.querySelector('.dl-btn');
+    // Download button
+    const dlBtn = card.querySelector('.featured-download-btn');
     if (dlBtn) {
       dlBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -586,7 +627,7 @@ const RingoComponents = (() => {
       });
     }
 
-    // Set as Sound
+    // Set as Sound (Trim modal)
     const setBtn = card.querySelector('.featured-set-sound-btn');
     if (setBtn) {
       setBtn.addEventListener('click', (e) => {

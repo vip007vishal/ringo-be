@@ -383,9 +383,14 @@ var RingoPlayerUI = (() => {
     const heroCard = document.querySelector('.featured-hero-card');
     if (heroCard) {
       const heroId = heroCard.dataset.id;
-      const isHeroPlaying = (heroId === sound.id && isPlaying);
-      const heroBtn = document.getElementById('featured-play-btn');
-      if (heroBtn) heroBtn.innerHTML = RingoComponents.getIcon(isHeroPlaying ? 'pause' : 'play');
+      const isHeroPlaying = Boolean(sound && heroId === sound.id && isPlaying);
+      heroCard.classList.toggle('playing', isHeroPlaying);
+      const heroBtn = heroCard.querySelector('.featured-play-btn');
+      if (heroBtn) {
+        heroBtn.innerHTML = RingoComponents.getIcon(isHeroPlaying ? 'pause' : 'play');
+        heroBtn.setAttribute('aria-label', isHeroPlaying ? 'Pause' : 'Play');
+        heroBtn.title = isHeroPlaying ? 'Pause' : 'Play';
+      }
     }
   }
 
@@ -421,17 +426,31 @@ var RingoPlayerUI = (() => {
       });
     }
 
-    // Hero Waveform Visualizer
-    const heroCanvas = document.getElementById('featured-waveform-canvas');
-    if (heroCanvas) {
+    // Hero Waveform Visualizer & Live Time Counter
+    const heroCard = document.querySelector('.featured-hero-card');
+    if (heroCard) {
+      const heroCanvas = heroCard.querySelector('.featured-waveform-canvas');
+      const heroId = heroCard.dataset.id;
       const state = RingoAudioEngine.getState();
-      const isHeroCurrent = state.currentSound && heroCanvas.dataset.id === state.currentSound.id;
+      const isHeroCurrent = Boolean(state.currentSound && heroId === state.currentSound.id);
       const heroProgress = isHeroCurrent ? progress : 0;
-      const heroAmps = isHeroCurrent && state.currentSound ? state.currentSound.waveformAmplitudes : [];
-      RingoWaveform.drawCardWaveform(heroCanvas, heroAmps, heroProgress, isHeroCurrent && state.isPlaying, {
-        activeColor: '#B58AFF',
-        inactiveColor: '#282138'
-      });
+
+      if (heroCanvas) {
+        const heroAmps = heroCanvas.amplitudes || (isHeroCurrent && state.currentSound ? state.currentSound.waveformAmplitudes : null);
+        RingoWaveform.drawCardWaveform(heroCanvas, heroAmps, heroProgress, isHeroCurrent && state.isPlaying, {
+          activeColor: '#B58AFF',
+          inactiveColor: '#282138'
+        });
+      }
+
+      const durLabel = heroCard.querySelector('.featured-hero-duration');
+      if (durLabel) {
+        if (isHeroCurrent && state.isPlaying) {
+          durLabel.textContent = `${formatDuration(posMs)} / ${formatDuration(durMs)}`;
+        } else if (heroCard.dataset.duration) {
+          durLabel.textContent = heroCard.dataset.duration;
+        }
+      }
     }
 
     // Active Playing Sound Card Waveform Visualizer

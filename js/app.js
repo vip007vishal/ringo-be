@@ -1178,6 +1178,17 @@
                     favBtn.innerHTML = RingoComponents.getIcon(isFav ? 'favorite' : 'favorite_border');
                 }
             });
+
+            // Synchronize Featured Hero Card download button
+            const heroCard = document.querySelector('.featured-hero-card');
+            if (heroCard && heroCard.dataset.id) {
+                const isDl = RingoStorage.isDownloaded(heroCard.dataset.id);
+                const heroDlBtn = heroCard.querySelector('.featured-download-btn');
+                if (heroDlBtn) {
+                    heroDlBtn.classList.toggle('downloaded', isDl);
+                    heroDlBtn.innerHTML = RingoComponents.getIcon(isDl ? 'download_done' : 'download');
+                }
+            }
         },
 
         /**

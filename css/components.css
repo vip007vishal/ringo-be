@@ -97,23 +97,22 @@
 
 .featured-hero-card {
   position: relative;
-  background-color: var(--elevated-dark);
+  background: linear-gradient(var(--elevated-dark), var(--elevated-dark)) padding-box,
+              linear-gradient(135deg, var(--primary-violet), var(--cyan-accent)) border-box;
+  border: 1px solid transparent;
   border-radius: 20px;
   padding: 18px;
-  border: 1px solid transparent;
-  background-clip: padding-box;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 10px rgba(139, 92, 246, 0.15);
   cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Gradient Border for Hero */
-.featured-hero-card::before {
-  content: "";
-  position: absolute;
-  top: -1px; left: -1px; right: -1px; bottom: -1px;
-  background: linear-gradient(135deg, var(--primary-violet), var(--cyan-accent));
-  border-radius: 20px;
-  z-index: -1;
+.featured-hero-card:active {
+  transform: scale(0.99);
+}
+
+.featured-hero-card.playing {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(139, 92, 246, 0.4);
 }
 
 .featured-hero-top {
@@ -206,6 +205,7 @@
   height: 36px;
   margin-bottom: 14px;
   display: block;
+  cursor: pointer;
 }
 
 .featured-hero-actions {
