@@ -9,6 +9,7 @@ const RingoDownloads = (() => {
   async function downloadTrack(sound) {
     if (!sound) return;
 
+    // Guarantee HTTPS URL strictly
     const secureUrl = (sound.audioUrl || '').replace(/^http:\/\//i, 'https://');
     if (!secureUrl) {
       RingoApp.showToast(`Audio source unavailable for "${sound.title}"`);
@@ -17,21 +18,21 @@ const RingoDownloads = (() => {
 
     const filename = sound.filename || `${sound.title}.mp3`;
 
-    // 1. Trigger pure HTTPS download so Kotlin Android WebView DownloadManager receives an https:// URL
-    downloadViaHttps(secureUrl, filename);
-
-    if (sound.isDownloaded) {
-      RingoApp.showToast(`Downloading "${sound.title}" via HTTPS (Cached: ${sound.fileSize})`);
-      return;
-    }
-
+    // Notify user immediately - no redirect, stays completely seamless on the current screen
     RingoApp.showToast(`Downloading "${sound.title}" via HTTPS...`);
 
-    // 2. Fetch and persist in IndexedDB for offline in-app playback
+    // 1. Dispatch pure HTTPS download trigger (Android WebView DownloadListener / Native Bridge compatible)
+    downloadViaHttps(secureUrl, filename, sound);
+
+    // 2. Concurrently fetch via HTTPS for offline caching & seamless in-browser download
     try {
-      const response = await fetch(secureUrl);
+      const response = await fetch(secureUrl, {
+        method: 'GET',
+        mode: 'cors'
+      });
+
       if (!response.ok) {
-        throw new Error(`Download HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}`);
       }
 
       const audioBlob = await response.blob();
@@ -45,21 +46,24 @@ const RingoDownloads = (() => {
       RingoApp.updateAllSoundCardButtons();
       updateStorageSummaries();
 
-      RingoApp.showToast(`Saved "${sound.title}" to device cache (${fileSize})`);
+      // Trigger local device file saving seamlessly without any page redirection or tab opening
+      saveBlobToDeviceFile(audioBlob, filename);
+
+      RingoApp.showToast(`Saved "${sound.title}" to device storage (${fileSize})`);
     } catch (err) {
-      console.warn('Offline cache error:', err);
+      console.warn('Seamless download cache note:', err);
     }
   }
 
   /**
-   * Triggers device download using a clean HTTPS URL.
-   * Kotlin Android WebView DownloadManager strictly requires https:// schemes (rejects blob: URLs).
+   * Triggers device download using a clean HTTPS URL without redirecting the page.
+   * Compatible with Kotlin Android WebView DownloadManager & DownloadListener.
    */
-  function downloadViaHttps(httpsUrl, filename) {
+  function downloadViaHttps(httpsUrl, filename, sound = null) {
     try {
       const secureUrl = httpsUrl.replace(/^http:\/\//i, 'https://');
 
-      // If Kotlin Android WebView exposes a JavaScript interface, pass HTTPS URL directly
+      // 1. If Kotlin Android WebView exposes a JavaScript interface, pass HTTPS URL directly
       if (window.Android && typeof window.Android.downloadSong === 'function') {
         window.Android.downloadSong(secureUrl, filename);
         return;
@@ -73,30 +77,49 @@ const RingoDownloads = (() => {
         return;
       }
 
-      // Standard browser & WebView DownloadListener trigger
-      const a = document.createElement('a');
-      a.href = secureUrl;
-      a.download = filename || 'audio.mp3';
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        if (a.parentNode) {
-          document.body.removeChild(a);
+      // 2. Dispatch custom DOM event with pure HTTPS URL for native webview hooks
+      window.dispatchEvent(new CustomEvent('ringo:download', {
+        detail: {
+          url: secureUrl,
+          filename: filename,
+          title: sound ? sound.title : filename,
+          mimeType: 'audio/mpeg'
         }
-      }, 1000);
+      }));
+
+      // 3. Trigger hidden iframe request with HTTPS URI
+      // An invisible subframe never navigates or redirects the main window,
+      // while allowing Android WebView's DownloadListener.onDownloadStart to intercept the HTTPS URI.
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.style.width = '0px';
+      iframe.style.height = '0px';
+      iframe.style.border = '0';
+      iframe.style.position = 'absolute';
+      iframe.style.top = '-9999px';
+      iframe.src = secureUrl;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        if (iframe.parentNode) {
+          iframe.parentNode.removeChild(iframe);
+        }
+      }, 8000);
     } catch (e) {
       console.warn('downloadViaHttps failed:', e);
     }
   }
 
+  /**
+   * Saves blob locally without redirecting, navigating, or opening a new tab.
+   */
   function saveBlobToDeviceFile(blob, filename) {
     try {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = filename;
+      // Intentionally NO target='_blank' so it never redirects or opens another page
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
@@ -104,7 +127,7 @@ const RingoDownloads = (() => {
           document.body.removeChild(a);
         }
         URL.revokeObjectURL(url);
-      }, 1000);
+      }, 2000);
     } catch (e) {
       console.warn('saveBlobToDeviceFile failed:', e);
     }
