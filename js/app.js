@@ -318,6 +318,13 @@
                 console.warn('[RingoApp] Global action handlers error:', e);
             }
 
+            // 8. Initialize Google AdMob / AdSense Test Ad Unit (ca-app-pub-3940256099942544/6300978111)
+            try {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                // Handled gracefully: high-fidelity test creative banner remains active
+            }
+
             console.log('[RingoApp] RINGO initialized successfully.');
         },
 
