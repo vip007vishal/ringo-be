@@ -80,6 +80,11 @@ var RingoRouter;
             const target = screenId.toLowerCase();
             if (!SCREENS.includes(target)) return;
 
+            // Automatically dismiss now-playing modal sheet when navigation occurs
+            if (window.RingoPlayerUI && typeof window.RingoPlayerUI.closeFullPlayer === 'function') {
+                window.RingoPlayerUI.closeFullPlayer();
+            }
+
             const previousScreen = currentScreen;
             currentScreen = target;
 

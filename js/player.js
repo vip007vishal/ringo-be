@@ -495,7 +495,9 @@ var RingoPlayerUI = (() => {
 
   function closeFullPlayer() {
     const modal = document.getElementById('full-player-modal');
-    if (modal) modal.classList.remove('show');
+    if (modal && modal.classList.contains('show')) {
+      modal.classList.remove('show');
+    }
   }
 
   function formatDuration(ms) {
