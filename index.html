@@ -22,8 +22,18 @@
     <link rel="stylesheet" href="css/library.css">
     <link rel="stylesheet" href="css/responsive.css">
 
-    <!-- Google Mobile Ads / AdSense (Official AdMob Test Client ca-pub-3940256099942544) -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544" crossorigin="anonymous"></script>
+    <!-- Google Publisher Tag (GPT) / Google Ad Manager Official Live Test Ads -->
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" crossorigin="anonymous"></script>
+    <script>
+        window.googletag = window.googletag || {cmd: []};
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/21775744923/example/adaptive-banner', [[320, 50], [300, 50]], 'banner-ad-slot')
+                     .addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.pubads().collapseEmptyDivs();
+            googletag.enableServices();
+        });
+    </script>
 </head>
 <body>
 
@@ -41,40 +51,14 @@
             <button class="offline-banner-btn" onclick="RingoRouter.navigate('library', { tab: 'downloads' })">Saved Cache</button>
         </aside>
 
-        <!-- Google AdMob Banner Slot (Official Google Test Unit ca-app-pub-3940256099942544/6300978111) -->
-        <section class="ringo-ad-banner ad-banner-slot" id="ringo-admob-banner" aria-label="Google AdMob Advertisement">
-            <div class="admob-banner-inner">
-                <div class="admob-ad-container" id="admob-test-ad-unit">
-                    <!-- Google AdMob / AdSense Live Ad Tag -->
-                    <ins class="adsbygoogle"
-                         style="display:inline-block;width:320px;height:50px"
-                         data-ad-client="ca-pub-3940256099942544"
-                         data-ad-slot="6300978111"
-                         data-adtest="on"></ins>
-
-                    <!-- Google AdMob 320x50 Test Creative Banner (Displayed immediately & in test mode) -->
-                    <div class="admob-fallback-creative" id="admob-creative">
-                        <div class="admob-creative-badge">
-                            <span class="ad-badge">AD</span>
-                            <span class="admob-label">Google AdMob · Test Ad</span>
-                        </div>
-                        <div class="admob-creative-body">
-                            <div class="admob-creative-logo">
-                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#4285F4"/>
-                                    <path d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" fill="#EA4335"/>
-                                    <path d="M12 7.5a4.5 4.5 0 00-4.5 4.5h9A4.5 4.5 0 0012 7.5z" fill="#FBBC05"/>
-                                    <path d="M12 16.5a4.5 4.5 0 004.5-4.5h-9a4.5 4.5 0 004.5 4.5z" fill="#34A853"/>
-                                </svg>
-                            </div>
-                            <div class="admob-creative-text">
-                                <div class="admob-creative-title">Nice job! This is a 320x50 test ad.</div>
-                                <div class="admob-creative-sub">ca-app-pub-3940256099942544/6300978111</div>
-                            </div>
-                            <a class="admob-action-btn" href="https://developers.google.com/admob" target="_blank" rel="noopener noreferrer">Install</a>
-                        </div>
-                    </div>
-                </div>
+        <!-- Google Live Test Ad Banner Slot -->
+        <section class="ringo-ad-banner ad-banner-slot" id="ringo-admob-banner" aria-label="Advertisement">
+            <div id="banner-ad-slot" style="min-width: 300px; min-height: 50px; display: flex; justify-content: center; align-items: center; width: 100%;">
+                <script>
+                    googletag.cmd.push(function() {
+                        googletag.display('banner-ad-slot');
+                    });
+                </script>
             </div>
         </section>
 
