@@ -45,8 +45,8 @@
 
   /* Layout and Dimensions */
   --app-max-width: 720px;
-  --nav-bar-height: 60px;
-  --nav-bar-bottom-margin: 10px;
+  --nav-bar-height: 0px;
+  --nav-bar-bottom-margin: 0px;
   --mini-player-height: 62px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-top: env(safe-area-inset-top, 0px);
@@ -121,8 +121,8 @@ html, body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  /* Extra bottom padding to clear the floating mini-player and bottom pill nav */
-  padding-bottom: calc(var(--nav-bar-height) + var(--nav-bar-bottom-margin) + var(--mini-player-height) + var(--safe-area-bottom) + 24px);
+  /* Extra bottom padding to clear the floating mini-player */
+  padding-bottom: calc(var(--mini-player-height) + var(--safe-area-bottom) + 20px);
   box-sizing: border-box;
   animation: fadeInScreen var(--transition-normal);
 }
@@ -546,7 +546,7 @@ h1, h2, h3, h4, h5, h6 {
 #snackbar-container,
 .toast-notifications-container {
   position: fixed;
-  bottom: calc(var(--nav-bar-height) + var(--nav-bar-bottom-margin) + var(--safe-area-bottom) + 14px);
+  bottom: calc(var(--mini-player-height) + var(--safe-area-bottom) + 16px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
