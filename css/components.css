@@ -6,7 +6,6 @@
    Floating Pill Bottom Navigation Bar
    -------------------------------------------------------------------------- */
 .pill-nav-container {
-  display: none !important;
   position: fixed;
   bottom: calc(var(--nav-bar-bottom-margin) + var(--safe-area-bottom));
   left: 0;

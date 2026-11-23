@@ -295,13 +295,23 @@
             try { RingoStudio.init(); } catch (e) { console.warn('[RingoApp] Studio init error:', e); }
             try { RingoRouter.init(); } catch (e) { console.warn('[RingoApp] Router init error:', e); }
 
-            // 5. Initial Renderings
+            // 5. Setup Link Interception & Restore Playback Session Across Redirects
+            try { this.setupGlobalLinkInterception(); } catch (e) {}
+            try {
+                if (typeof RingoAudioEngine !== 'undefined' && typeof RingoAudioEngine.restorePlaybackSession === 'function') {
+                    RingoAudioEngine.restorePlaybackSession();
+                }
+            } catch (e) {
+                console.warn('[RingoApp] Playback session restore error:', e);
+            }
+
+            // 6. Initial Renderings
             this.renderHomeScreen();
             this.renderExploreScreen();
             this.renderLibraryScreen();
             this.renderProfileScreen();
 
-            // 6. Setup Global Click Handlers for Sound Actions
+            // 7. Setup Global Click Handlers for Sound Actions
             try {
                 this.setupGlobalActionHandlers();
             } catch (e) {
@@ -1104,6 +1114,26 @@
             window.addEventListener('ringo:report', (e) => {
                 const sound = e.detail;
                 if (sound) RingoComponents.openReportModal(sound);
+            });
+        },
+
+        /**
+         * Intercept in-app link clicks so pages and tabs switch without full browser reloading
+         */
+        setupGlobalLinkInterception() {
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (!a) return;
+                const href = a.getAttribute('href');
+                if (!href) return;
+
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    const route = href.replace(/^#\/?/, '').split('?')[0];
+                    if (route && typeof RingoRouter !== 'undefined') {
+                        RingoRouter.navigate(route);
+                    }
+                }
             });
         },
 

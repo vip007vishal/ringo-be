@@ -6,7 +6,7 @@
 /* Compact Mobile Screens (< 360px width, e.g. 320x640) */
 @media (max-width: 359px) {
   :root {
-    --nav-bar-height: 0px;
+    --nav-bar-height: 54px;
     --mini-player-height: 56px;
   }
 
@@ -146,8 +146,11 @@
 
 /* Safe Area Insets for notched Android phones & gesture navigation bars */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pill-nav-container {
+    bottom: calc(var(--nav-bar-bottom-margin) + env(safe-area-inset-bottom, 0px));
+  }
   .mini-player-container {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    bottom: calc(var(--nav-bar-height) + var(--nav-bar-bottom-margin) + env(safe-area-inset-bottom, 0px) + 8px);
   }
 }
 

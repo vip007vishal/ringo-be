@@ -11,22 +11,29 @@ var RingoRouter;
     const SCREENS = ['home', 'explore', 'create', 'library', 'profile'];
     let currentScreen = 'home';
     let navigationHistory = ['home'];
+    const screenScrollPositions = {
+        home: 0,
+        explore: 0,
+        create: 0,
+        library: 0,
+        profile: 0
+    };
 
     RingoRouter = {
         /**
          * Initialize the router, binding hash changes and nav items
          */
         init() {
-            // Bind floating pill navigation items
-            const navItems = document.querySelectorAll('.pill-nav-item');
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const target = item.getAttribute('data-target');
-                    if (target) {
+            // Bind delegated click handler for any nav buttons (including floating pills and action cards)
+            document.addEventListener('click', (e) => {
+                const navBtn = e.target.closest('[data-target]');
+                if (navBtn) {
+                    const target = navBtn.getAttribute('data-target');
+                    if (target && SCREENS.includes(target.toLowerCase())) {
+                        e.preventDefault();
                         this.navigate(target);
                     }
-                });
+                }
             });
 
             // Listen to browser hash changes (Android WebView back/forward button support)
@@ -76,6 +83,12 @@ var RingoRouter;
             const previousScreen = currentScreen;
             currentScreen = target;
 
+            // Preserve scroll position of departing screen
+            const prevEl = document.getElementById(`screen-${previousScreen}`);
+            if (prevEl) {
+                screenScrollPositions[previousScreen] = prevEl.scrollTop;
+            }
+
             // Update browser URL hash if requested
             if (pushState) {
                 let hashUrl = `#/${target}`;
@@ -96,6 +109,7 @@ var RingoRouter;
             });
 
             // Switch screen visibility with smooth crossfade
+            let targetEl = null;
             SCREENS.forEach(id => {
                 const el = document.getElementById(`screen-${id}`);
                 if (el) {
@@ -103,6 +117,7 @@ var RingoRouter;
                         el.classList.add('active');
                         el.style.display = 'block';
                         el.removeAttribute('inert');
+                        targetEl = el;
                     } else {
                         el.classList.remove('active');
                         el.style.display = 'none';
@@ -111,8 +126,14 @@ var RingoRouter;
                 }
             });
 
-            // Scroll target container to top
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            // Maintain independent scroll position for each screen
+            if (targetEl) {
+                if (params && (params.tab || params.genre || params.search)) {
+                    targetEl.scrollTop = 0;
+                } else if (screenScrollPositions[target] !== undefined) {
+                    targetEl.scrollTop = screenScrollPositions[target];
+                }
+            }
 
             // Notify screen specific handlers
             this.onScreenActivated(target, params, previousScreen);

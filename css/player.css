@@ -7,7 +7,7 @@
    -------------------------------------------------------------------------- */
 .mini-player-container {
   position: fixed;
-  bottom: calc(var(--safe-area-bottom) + 10px);
+  bottom: calc(var(--nav-bar-height) + var(--nav-bar-bottom-margin) + var(--safe-area-bottom) + 8px);
   left: 0;
   right: 0;
   display: flex;

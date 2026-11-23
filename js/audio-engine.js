@@ -181,6 +181,15 @@ const RingoAudioEngine = (() => {
       }
     }
 
+    // Periodically persist playback progress for seamless multi-page continuity
+    const now = Date.now();
+    if (now - lastSessionSaveTime > 1500) {
+      lastSessionSaveTime = now;
+      if (currentSound && isPlaying) {
+        savePlaybackSession(currentSound, true, posSec);
+      }
+    }
+
     notifyTime(posMs, durMs);
   }
 
@@ -242,9 +251,75 @@ const RingoAudioEngine = (() => {
     });
   }
 
+  const STATE_STORAGE_KEY = 'ringo_active_playback_session';
+  let lastSessionSaveTime = 0;
+
+  function savePlaybackSession(sound, isPlayingState, positionSec = null) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      if (!sound) {
+        localStorage.removeItem(STATE_STORAGE_KEY);
+        return;
+      }
+      const pos = positionSec !== null ? positionSec : (audioElement ? audioElement.currentTime : 0);
+      const sessionData = {
+        sound: {
+          id: sound.id,
+          title: sound.title,
+          creator: sound.creator,
+          durationMs: sound.durationMs,
+          audioUrl: sound.audioUrl,
+          coverUrl: sound.coverUrl,
+          category: sound.category,
+          specs: sound.specs,
+          waveformAmplitudes: sound.waveformAmplitudes
+        },
+        positionSec: pos,
+        isPlaying: Boolean(isPlayingState),
+        timestamp: Date.now()
+      };
+      localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(sessionData));
+    } catch (e) {}
+  }
+
+  async function restorePlaybackSession() {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(STATE_STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (!data || !data.sound) return;
+
+      currentSound = data.sound;
+      notifyState();
+
+      if (data.isPlaying) {
+        const resumePosMs = Math.max(0, Math.round((data.positionSec || 0) * 1000));
+        try {
+          await play(data.sound, resumePosMs);
+        } catch (err) {
+          const resumeOnFirstGesture = () => {
+            ['click', 'touchstart', 'keydown'].forEach(evt => {
+              window.removeEventListener(evt, resumeOnFirstGesture, true);
+            });
+            if (currentSound && !isPlaying) {
+              play(data.sound, resumePosMs).catch(() => {});
+            }
+          };
+          ['click', 'touchstart', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, resumeOnFirstGesture, { capture: true, once: true });
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('[AudioEngine] Restore session failed:', e);
+    }
+  }
+
   function setPlaying(playing) {
     isPlaying = playing;
     updateMediaSession(currentSound, playing);
+    savePlaybackSession(currentSound, playing);
     notifyState();
   }
 
@@ -361,6 +436,7 @@ const RingoAudioEngine = (() => {
     if (audioElement) {
       audioElement.pause();
     }
+    savePlaybackSession(currentSound, false);
   }
 
   function togglePlayPause(sound) {
@@ -380,6 +456,7 @@ const RingoAudioEngine = (() => {
     clearInterval(segmentCheckInterval);
     segmentStartMs = null;
     segmentEndMs = null;
+    savePlaybackSession(null, false, 0);
     setPlaying(false);
   }
 
@@ -641,13 +718,43 @@ const RingoAudioEngine = (() => {
     set onTrackCompleted(fn) { onTrackCompleted = fn; },
     get onTrackCompleted() { return onTrackCompleted; },
     getState,
-    getAudioContext
+    getAudioContext,
+    restorePlaybackSession
   };
 })();
 
-// Background Tab & OS Continuity: Prevent audio context from sleeping when switching tabs
-if (typeof document !== 'undefined') {
-  document.addEventListener('visibilitychange', () => {
+// Background Tab, OS, & Page Transition Continuity: Save and restore playback across redirects/tabs
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const state = RingoAudioEngine.getState();
+    if (state && state.currentSound) {
+      // Save current state with exact position
+      try {
+        const raw = localStorage.getItem('ringo_active_playback_session');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          parsed.timestamp = Date.now();
+          localStorage.setItem('ringo_active_playback_session', JSON.stringify(parsed));
+        }
+      } catch (e) {}
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    const state = RingoAudioEngine.getState();
+    if (state && state.currentSound) {
+      try {
+        const raw = localStorage.getItem('ringo_active_playback_session');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          parsed.timestamp = Date.now();
+          localStorage.setItem('ringo_active_playback_session', JSON.stringify(parsed));
+        }
+      } catch (e) {}
+    }
+  });
+
+  window.addEventListener('focus', () => {
     const ctx = RingoAudioEngine.getAudioContext();
     const state = RingoAudioEngine.getState();
     if (ctx && ctx.state === 'suspended' && state.isPlaying) {
@@ -656,8 +763,8 @@ if (typeof document !== 'undefined') {
   });
 }
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('focus', () => {
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
     const ctx = RingoAudioEngine.getAudioContext();
     const state = RingoAudioEngine.getState();
     if (ctx && ctx.state === 'suspended' && state.isPlaying) {
