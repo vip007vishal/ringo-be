@@ -1288,7 +1288,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Google Ad Banner Container (Google Publisher Tag Live Test Slot)
+   Live Ad Banner Container (External Ad Network Live Unit)
    -------------------------------------------------------------------------- */
 .ringo-ad-banner {
   display: flex;
@@ -1310,4 +1310,15 @@
   width: 100%;
   max-width: 100%;
   min-height: 50px;
+}
+
+#network-ad-frame {
+  width: 320px;
+  height: 50px;
+  max-width: 100%;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+  display: block;
 }
