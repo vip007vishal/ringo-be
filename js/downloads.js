@@ -7,20 +7,29 @@
 const RingoDownloads = (() => {
 
   async function downloadTrack(sound) {
-    if (sound.isDownloaded) {
-      RingoApp.showToast(`"${sound.title}" is already saved offline (${sound.fileSize})`);
-      return;
-    }
+    if (!sound) return;
 
-    if (!sound.audioUrl) {
+    const secureUrl = (sound.audioUrl || '').replace(/^http:\/\//i, 'https://');
+    if (!secureUrl) {
       RingoApp.showToast(`Audio source unavailable for "${sound.title}"`);
       return;
     }
 
-    RingoApp.showToast(`Downloading "${sound.title}" to device storage...`);
+    const filename = sound.filename || `${sound.title}.mp3`;
 
+    // 1. Trigger pure HTTPS download so Kotlin Android WebView DownloadManager receives an https:// URL
+    downloadViaHttps(secureUrl, filename);
+
+    if (sound.isDownloaded) {
+      RingoApp.showToast(`Downloading "${sound.title}" via HTTPS (Cached: ${sound.fileSize})`);
+      return;
+    }
+
+    RingoApp.showToast(`Downloading "${sound.title}" via HTTPS...`);
+
+    // 2. Fetch and persist in IndexedDB for offline in-app playback
     try {
-      const response = await fetch(sound.audioUrl);
+      const response = await fetch(secureUrl);
       if (!response.ok) {
         throw new Error(`Download HTTP ${response.status}`);
       }
@@ -28,21 +37,57 @@ const RingoDownloads = (() => {
       const audioBlob = await response.blob();
       const fileSize = RingoStorage.formatBytes(audioBlob.size);
 
-      // 1. Save in IndexedDB for instant in-browser offline playback
+      // Save in IndexedDB for instant in-browser offline playback
       await RingoStorage.saveDownload(sound, audioBlob);
 
-      // 2. Also trigger device file download so it appears in the device's Music folder
-      saveBlobToDeviceFile(audioBlob, sound.filename || `${sound.title}.mp3`);
-
-      // 3. Update in-memory state & notify UI
+      // Update in-memory state & notify UI
       RingoAPI.updateSoundDownloadState(sound.id, true, fileSize);
       RingoApp.updateAllSoundCardButtons();
       updateStorageSummaries();
 
-      RingoApp.showToast(`Saved "${sound.title}" to Mobile Storage (${fileSize})`);
+      RingoApp.showToast(`Saved "${sound.title}" to device cache (${fileSize})`);
     } catch (err) {
-      console.warn('Download error:', err);
-      RingoApp.showToast(`Download failed: ${err.message}`);
+      console.warn('Offline cache error:', err);
+    }
+  }
+
+  /**
+   * Triggers device download using a clean HTTPS URL.
+   * Kotlin Android WebView DownloadManager strictly requires https:// schemes (rejects blob: URLs).
+   */
+  function downloadViaHttps(httpsUrl, filename) {
+    try {
+      const secureUrl = httpsUrl.replace(/^http:\/\//i, 'https://');
+
+      // If Kotlin Android WebView exposes a JavaScript interface, pass HTTPS URL directly
+      if (window.Android && typeof window.Android.downloadSong === 'function') {
+        window.Android.downloadSong(secureUrl, filename);
+        return;
+      }
+      if (window.Android && typeof window.Android.downloadFile === 'function') {
+        window.Android.downloadFile(secureUrl, filename);
+        return;
+      }
+      if (window.AndroidBridge && typeof window.AndroidBridge.download === 'function') {
+        window.AndroidBridge.download(secureUrl, filename);
+        return;
+      }
+
+      // Standard browser & WebView DownloadListener trigger
+      const a = document.createElement('a');
+      a.href = secureUrl;
+      a.download = filename || 'audio.mp3';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        if (a.parentNode) {
+          document.body.removeChild(a);
+        }
+      }, 1000);
+    } catch (e) {
+      console.warn('downloadViaHttps failed:', e);
     }
   }
 
@@ -55,7 +100,9 @@ const RingoDownloads = (() => {
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
-        document.body.removeChild(a);
+        if (a.parentNode) {
+          document.body.removeChild(a);
+        }
         URL.revokeObjectURL(url);
       }, 1000);
     } catch (e) {
